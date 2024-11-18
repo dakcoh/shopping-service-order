@@ -1,2 +1,66 @@
+shopping-service-order-master/
+    .gitignore
+    README.md
+    build.gradle.kts
+    gradlew
+    gradlew.bat
+    settings.gradle.kts
+    api-gateway/
+        Dockerfile
+        build.gradle.kts
+    cart-service/
+        Dockerfile
+        build.gradle.kts
+    customer-service/
+        Dockerfile
+        build.gradle.kts
+    gradle/
+        gradle-daemon-jvm.properties
+        wrapper/
+            gradle-wrapper.jar
+            gradle-wrapper.properties
+    notification-service/
+        Dockerfile
+        build.gradle.kts
+    order-service/
+        Dockerfile
+        build.gradle.kts
+        src/
+            main/
+                java/
+                    order/
+                        OrderApplication.java
+                        controller/
+                            OrderController.java
+                        dto/
+                            OrderRequest.java
+                            OrderResponse.java
+                        entity/
+                            Order.java
+                            OrderItem.java
+                            OrderStatus.java
+                        exception/
+                            OrderNotFoundException.java
+                        repository/
+                            OrderRepository.java
+                        service/
+                            OrderService.java
+                resources/
+                    application.yml
+            test/
+                java/
+                    order/
+                        ShoppingServiceOrderApplicationTests.java
+    payment-service/
+        Dockerfile
+        build.gradle.kts
+    product-service/
+        Dockerfile
+        build.gradle.kts
+    shipping-service/
+        Dockerfile
+        build.gradle.kts
+
+
 # 주문 서비스 개발
 ## DB 설계서 등등...
