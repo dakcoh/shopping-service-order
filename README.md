@@ -1,7 +1,7 @@
-### 프로젝트 개요
+## 프로젝트 개요
 이 프로젝트는 쇼핑 주문 서비스를 위한 마이크로서비스 아키텍처로 개발되었습니다. 각 서비스는 독립적으로 배포 가능하며, 전체 시스템은 다양한 비즈니스 로직을 분리하여 관리할 수 있도록 구성되었습니다.
 
-### 프로젝트 구조
+## 프로젝트 구조
 ``` bash
 ├── api-gateway
 │   ├── Dockerfile
@@ -64,8 +64,8 @@
 - **repository:** 데이터베이스와 상호작용하는 레포지토리 클래스입니다.
 - **service:** 비즈니스 로직을 처리하는 서비스 클래스입니다.
 
-### 테이블 ERD 작성
-## ERD Diagram
+## 테이블 ERD 작성
+### * 고객/주소/장바구니 보관 ERD
 ```mermaid
 erDiagram
     CUSTOMER {
@@ -87,6 +87,27 @@ erDiagram
         BOOLEAN is_default
         VARCHAR delivery_instructions
     }
+    CART {
+        INT id PK
+        INT customer_id FK
+    }
+    CART_ITEM {
+        INT id PK
+        INT cart_id FK
+        INT product_option_id FK
+        INT quantity
+        DATETIME added_at
+    }
+
+    CUSTOMER ||--o{ ADDRESS : "has"
+    CUSTOMER ||--o{ CART : "has"
+    CART ||--o{ CART_ITEM : "contains"
+    ADDRESS }o--|| CUSTOMER : "belongs to"
+```
+### * 상품/재고 ERD
+```mermaid
+
+erDiagram
     PRODUCT {
         INT id PK
         VARCHAR name
@@ -125,6 +146,26 @@ erDiagram
         DECIMAL current_price
         INT stock_qty
     }
+    INVENTORY {
+        INT id PK
+        INT product_option_id FK
+        VARCHAR sku
+        INT stock_qty
+        INT reserved_qty
+        INT available_qty
+    }
+
+    PRODUCT ||--o{ PRODUCT_OPTION : "has"
+    COLOR ||--o{ PRODUCT_OPTION : "has"
+    SIZE ||--o{ PRODUCT_OPTION : "has"
+    CATEGORY ||--o{ PRODUCT_OPTION : "has"
+    BRAND ||--o{ PRODUCT_OPTION : "has"
+    PRODUCT_OPTION ||--o{ INVENTORY : "tracked by"
+```
+
+### * 주문/결제/배송 ERD
+```mermaid
+erDiagram
     "ORDER" {
         INT id PK
         DATE order_date
@@ -163,14 +204,6 @@ erDiagram
         INT error_code
         VARCHAR error_description
     }
-    INVENTORY {
-        INT id PK
-        INT product_option_id FK
-        VARCHAR sku
-        INT stock_qty
-        INT reserved_qty
-        INT available_qty
-    }
     SHIPMENT {
         INT id PK
         INT order_id FK
@@ -184,35 +217,13 @@ erDiagram
         VARCHAR recipient_name
         VARCHAR recipient_phone
     }
-    CART {
-        INT id PK
-        INT customer_id FK
-    }
-    CART_ITEM {
-        INT id PK
-        INT cart_id FK
-        INT product_option_id FK
-        INT quantity
-        DATETIME added_at
-    }
 
-    CUSTOMER ||--o{ ADDRESS : "has"
     CUSTOMER ||--o{ "ORDER" : "places"
     CUSTOMER ||--o{ PAYMENT : "makes"
     CUSTOMER ||--o{ ORDER_NOTIFICATION : "receives"
-    ADDRESS }o--|| CUSTOMER : "belongs to"
-    PRODUCT ||--o{ PRODUCT_OPTION : "has"
-    COLOR ||--o{ PRODUCT_OPTION : "has"
-    SIZE ||--o{ PRODUCT_OPTION : "has"
-    CATEGORY ||--o{ PRODUCT_OPTION : "has"
-    BRAND ||--o{ PRODUCT_OPTION : "has"
     "ORDER" ||--o{ ORDER_DETAIL : "includes"
     ORDER_DETAIL }o--|| PRODUCT_OPTION : "refers to"
     PAYMENT }o--|| "ORDER" : "for"
     ORDER_NOTIFICATION }o--|| "ORDER" : "about"
-    PRODUCT_OPTION ||--o{ INVENTORY : "tracked by"
     "ORDER" ||--o{ SHIPMENT : "includes"
-    CUSTOMER ||--o{ CART : "has"
-    CART ||--o{ CART_ITEM : "contains"
-    CART_ITEM }o--|| PRODUCT_OPTION : "refers to"
 ```
