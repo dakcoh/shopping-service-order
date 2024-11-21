@@ -1,77 +1,102 @@
-package order.service;
 
-import jakarta.transaction.Transactional;
-import order.dto.OrderResponse;
-import order.entity.Order;
-import order.entity.OrderItem;
-import order.entity.OrderStatus;
-import order.exception.OrderNotFoundException;
-import order.repository.OrderRepository;
+package com.example.orderservice.service;
+
+import com.example.orderservice.entity.Order;
+import com.example.orderservice.repository.OrderRepository;
+import com.example.orderservice.dto.OrderResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * 주문 관련 비즈니스 로직을 처리하는 서비스 클래스.
+ * OrderService 클래스는 주문에 대한 비즈니스 로직을 처리합니다.
+ * 모든 주문 관련 작업은 이 클래스에서 구현됩니다.
  */
 @Service
 public class OrderService {
 
     private final OrderRepository orderRepository;
 
+    @Autowired
     public OrderService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 
-    @Transactional
-    public OrderResponse createOrder(Long userId, List<OrderItem> orderItems) {
+    /**
+     * 모든 주문을 조회합니다.
+     * @return 주문 목록을 OrderResponse 형태로 반환합니다.
+     */
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll().stream().map(this::convertToOrderResponse).collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 주문을 ID를 통해 조회합니다.
+     * @param id 주문의 고유 ID
+     * @return 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
+     */
+    public OrderResponse getOrderById(Long id) {
+        Optional<Order> order = orderRepository.findById(id);
+        return order.map(this::convertToOrderResponse).orElse(null);
+    }
+
+    /**
+     * 새로운 주문을 생성합니다.
+     * @param userId 사용자 ID
+     * @param items 주문 항목 리스트
+     * @return 생성된 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
+     */
+    public OrderResponse createOrder(Long userId, List<Long> items) {
+        // 주문 생성 로직 (간단한 더미 로직)
         Order order = new Order();
-        order.setUserId(userId);
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus(OrderStatus.PENDING);
-
-        for (OrderItem item : orderItems) {
-            item.setOrder(order);
-            order.getOrderItems().add(item);
-        }
-
+        order.setCustomerId(userId);
+        order.setTotalQuantity(items.size());
+        order.setStatus("PENDING");
         Order savedOrder = orderRepository.save(order);
-
-        return mapToOrderResponse(savedOrder);
+        return convertToOrderResponse(savedOrder);
     }
 
-    @Transactional
-    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
-        // 주문을 찾지 못하면 OrderNotFoundException 발생
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order with ID " + orderId + " not found"));
-        order.setStatus(status);
-
-        Order updatedOrder = orderRepository.save(order);
-
-        return mapToOrderResponse(updatedOrder);
+    /**
+     * 주문의 상태를 업데이트합니다.
+     * @param orderId 주문의 고유 ID
+     * @param status 변경할 주문 상태
+     * @return 업데이트된 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
+     */
+    public OrderResponse updateOrderStatus(Long orderId, String status) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            order.setStatus(status);
+            Order updatedOrder = orderRepository.save(order);
+            return convertToOrderResponse(updatedOrder);
+        }
+        return null; // 또는 예외를 던질 수도 있습니다.
     }
 
-    public List<OrderResponse> getOrdersByUserId(Long userId) {
-        List<Order> orders = orderRepository.findByUserId(userId);
-        return orders.stream().map(this::mapToOrderResponse).collect(Collectors.toList());
-    }
-
-    private OrderResponse mapToOrderResponse(Order order) {
+    /**
+     * Order 엔티티를 OrderResponse DTO로 변환합니다.
+     * @param order 변환할 Order 엔티티
+     * @return 변환된 OrderResponse DTO
+     */
+    private OrderResponse convertToOrderResponse(Order order) {
         OrderResponse response = new OrderResponse();
         response.setOrderId(order.getId());
-        response.setUserId(order.getUserId());
-        response.setOrderDate(order.getOrderDate());
         response.setStatus(order.getStatus());
-
-        List<OrderResponse.OrderItemResponse> items = order.getOrderItems().stream()
-                .map(item -> new OrderResponse.OrderItemResponse(
-                        item.getProductId(), item.getQuantity(), item.getPrice()))
-                .collect(Collectors.toList());
-
-        response.setItems(items);
         return response;
     }
+
+    public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setStatus(newStatus);
+            orderRepository.save(order);
+        } else {
+            throw new OrderNotFoundException("Order not found with id: " + orderId);
+        }
+    }
+
 }

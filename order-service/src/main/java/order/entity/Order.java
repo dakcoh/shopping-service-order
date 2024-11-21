@@ -1,29 +1,37 @@
 package order.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
-@Table(name = "orders")
-public class Order {
+@EntityListeners(AuditingEntityListener.class)
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // 주문 ID
+    private Long id;
 
-    private Long userId;  // 주문한 사용자 ID
-    private LocalDateTime orderDate;  // 주문 날짜 및 시간
+    private LocalDateTime order_date;
+
+    @Column(nullable = false)
+    private Long customer_id;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;  // 주문 상태 (예: PENDING, SHIPPED 등)
+    @Column(nullable = false)
+    private OrderStatus status;
 
-    // 주문 항목과의 1:N 관계 설정 (주문 삭제 시, 주문 항목도 함께 삭제됨)
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems = new ArrayList<>();
+    @Column(nullable = false)
+    private Integer total_quantity;
+
+    @Column(nullable = false)
+    private Double total_amount;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
 }

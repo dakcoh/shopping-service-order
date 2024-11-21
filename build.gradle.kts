@@ -51,7 +51,7 @@ tasks {
 	}
 
 	named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
-		mainClass.set("order.OrderApplication") // 올바른 메인 클래스 지정
+		mainClass.set("order.OrderApplication")
 	}
 	named<Jar>("jar") {
 		enabled = true // jar 활성화
