@@ -1,9 +1,9 @@
 
-package com.example.orderservice.controller;
+package order.controller;
 
-import com.example.orderservice.dto.OrderRequest;
-import com.example.orderservice.dto.OrderResponse;
-import com.example.orderservice.service.OrderService;
+import order.dto.OrderRequest;
+import order.dto.OrderResponse;
+import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +53,7 @@ public class OrderController {
      */
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
-        OrderResponse newOrder = orderService.createOrder(orderRequest.getUserId(), orderRequest.getItems());
+        OrderResponse newOrder = orderService.createOrder(orderRequest);
         return ResponseEntity.ok(newOrder);
     }
 

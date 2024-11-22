@@ -1,15 +1,24 @@
 
-package com.example.orderservice.service;
+package order.service;
 
-import com.example.orderservice.entity.Order;
-import com.example.orderservice.repository.OrderRepository;
-import com.example.orderservice.dto.OrderResponse;
+import jakarta.transaction.Transactional;
+import order.dto.OrderItemRequest;
+import order.dto.OrderRequest;
+import order.entity.Order;
+import order.entity.OrderDetail;
+import order.repository.OrderItemRepository;
+import order.repository.OrderRepository;
+import order.dto.OrderResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static order.entity.OrderStatus.PENDING;
 
 /**
  * OrderService 클래스는 주문에 대한 비즈니스 로직을 처리합니다.
@@ -19,10 +28,12 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderStatusHistoryService orderStatusHistoryService;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, OrderStatusHistoryService orderStatusHistoryService) {
         this.orderRepository = orderRepository;
+        this.orderStatusHistoryService = orderStatusHistoryService;
     }
 
     /**
@@ -30,7 +41,9 @@ public class OrderService {
      * @return 주문 목록을 OrderResponse 형태로 반환합니다.
      */
     public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll().stream().map(this::convertToOrderResponse).collect(Collectors.toList());
+        return orderRepository.findAll().stream()
+                .map(this::convertToOrderResponse)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -45,18 +58,48 @@ public class OrderService {
 
     /**
      * 새로운 주문을 생성합니다.
-     * @param userId 사용자 ID
-     * @param items 주문 항목 리스트
+     * @param orderRequest 주문 요청 목록
      * @return 생성된 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
      */
-    public OrderResponse createOrder(Long userId, List<Long> items) {
-        // 주문 생성 로직 (간단한 더미 로직)
+    @Transactional
+    public OrderResponse createOrder(OrderRequest orderRequest) {
+        // 1. 유효성 검증
+        if (orderRequest.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Order items cannot be null or empty");
+        }
+
+        // 2. 주문 생성
         Order order = new Order();
-        order.setCustomerId(userId);
-        order.setTotalQuantity(items.size());
-        order.setStatus("PENDING");
-        Order savedOrder = orderRepository.save(order);
-        return convertToOrderResponse(savedOrder);
+        order.setOrderDate(LocalDate.now().atStartOfDay());
+        order.setCustomerId(orderRequest.getCustomerId());
+        order.setStatus(PENDING);
+
+        int totalQuantity = 0;
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        // 3. 주문 상세 추가
+        for (OrderItemRequest item : orderRequest.getItems()) {
+            OrderDetail detail = new OrderDetail();
+            detail.setProduct_option_id(item.getProductOptionId());
+            detail.setQuantity(item.getQuantity());
+            detail.setAmount(item.getAmount());
+
+            order.addOrderDetail(detail);  // 양방향 관계 설정
+
+            totalQuantity += item.getQuantity();
+            totalAmount = totalAmount.add(item.getAmount());
+        }
+
+        order.setTotalQuantity(totalQuantity);
+        order.setTotalAmount(totalAmount);
+
+        // 4. 저장 (cascade로 OrderDetail도 저장)
+        Order saveOrder = orderRepository.save(order);
+
+        // 5. 상태 이력 기록
+        orderStatusHistoryService.create(saveOrder.getId(), saveOrder.getCustomerId(), saveOrder.getStatus());
+
+        return convertToOrderResponse(saveOrder);
     }
 
     /**
@@ -69,7 +112,7 @@ public class OrderService {
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-            order.setStatus(status);
+            order.setStatus(PENDING);
             Order updatedOrder = orderRepository.save(order);
             return convertToOrderResponse(updatedOrder);
         }
@@ -83,20 +126,20 @@ public class OrderService {
      */
     private OrderResponse convertToOrderResponse(Order order) {
         OrderResponse response = new OrderResponse();
-        response.setOrderId(order.getId());
+        response.setId(order.getId());
         response.setStatus(order.getStatus());
         return response;
     }
 
-    public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
-        Optional<Order> orderOptional = orderRepository.findById(orderId);
-        if (orderOptional.isPresent()) {
-            Order order = orderOptional.get();
-            order.setStatus(newStatus);
-            orderRepository.save(order);
-        } else {
-            throw new OrderNotFoundException("Order not found with id: " + orderId);
-        }
-    }
+//    public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
+//        Optional<Order> orderOptional = orderRepository.findById(orderId);
+//        if (orderOptional.isPresent()) {
+//            Order order = orderOptional.get();
+//            order.setStatus(newStatus);
+//            orderRepository.save(order);
+//        } else {
+//            throw new OrderNotFoundException("Order not found with id: " + orderId);
+//        }
+//    }
 
 }
