@@ -27,17 +27,26 @@
 │       │   │       │   └── OrderController.java
 │       │   │       ├── dto
 │       │   │       │   ├── OrderRequest.java
+│       │   │       │   ├── OrderItemRequest.java
 │       │   │       │   └── OrderResponse.java
 │       │   │       ├── entity
+│       │   │       │   ├── BaseEntity.java
 │       │   │       │   ├── Order.java
 │       │   │       │   ├── OrderItem.java
-│       │   │       │   └── OrderStatus.java
+│       │   │       │   ├── OrderStatus.java
+│       │   │       │   └── OrderStatusHistory.java
+│       │   │       ├── exception
+│       │   │       │   └── OrderNotFoundException.java
 │       │   │       ├── repository
+│       │   │       │   ├── OrderRepository.java
+│       │   │       │   ├── OrderItemRepository.java
 │       │   │       │   └── OrderRepository.java
 │       │   │       └── service
+│       │   │           ├── OrderStatusHistoryService.java
 │       │   │           └── OrderService.java
 │       │   └── resources
 │       │       └── application.yml
+│       └── test
 ├── payment-service
 │   ├── Dockerfile
 │   └── build.gradle.kts
