@@ -2,12 +2,17 @@
 package order.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 /**
  * 모든 테이블에 대한 공통 필드를 포함하는 상속 Entity
  */
 @MappedSuperclass
+@Getter
+@Setter
 public abstract class BaseEntity {
 
     /**

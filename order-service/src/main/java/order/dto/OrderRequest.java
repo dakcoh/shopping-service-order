@@ -1,13 +1,19 @@
 package order.dto;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import jakarta.persistence.Column;
+import lombok.Getter;
+import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
-@Data
+import java.math.BigDecimal;
+import java.util.List;
+
+@Getter
+@Setter
 public class OrderRequest {
-    @NotNull
+    @NotNull("Customer ID is required")
     private Long customerId;
 
-    @NotNull
-    private Double totalAmount;
+    @NotNull("Order items cannot be null")
+    private List<OrderItemRequest> items; // 주문 상세 리스트
 }
