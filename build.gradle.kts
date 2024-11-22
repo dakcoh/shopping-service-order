@@ -30,15 +30,22 @@ subprojects {
 	}
 
 	dependencies {
+		implementation("com.h2database:h2:2.3.232") // ver.2024-08-11
+
 		// 모든 서비스에서 공통으로 사용하는 의존성
+		implementation("org.springframework.boot:spring-boot-starter-validation")
 		implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 		implementation("org.springframework.boot:spring-boot-starter-web")
 
 		// Lombok 설정
 		compileOnly("org.projectlombok:lombok")
-		annotationProcessor("org.projectlombok:lombok")
+		implementation("org.projectlombok:lombok:1.18.36") // ver.2024.11-15
+		annotationProcessor("org.projectlombok:lombok:1.18.36") // ver.2024.11-15
+		testImplementation("org.projectlombok:lombok:1.18.36") // ver.2024.11-15
+		testAnnotationProcessor("org.projectlombok:lombok:1.18.36") // ver.2024.11-15
 
 		// 공통 테스트 라이브러리
+		implementation("org.jetbrains:annotations:26.0.1") // ver.2024-10-14
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
 		testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	}
