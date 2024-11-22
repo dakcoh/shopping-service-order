@@ -20,7 +20,7 @@ public class OrderDetail extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)  // FK
-    private Order order_id;
+    private Order order;
 
     private Long product_option_id;
 
@@ -30,7 +30,7 @@ public class OrderDetail extends BaseEntity {
 
     // 편의 메서드 (Order와 관계 설정)
     public void setOrder(Order order) {
-        this.order_id = order;
+        this.order = order;
         if (!order.getOrderDetails().contains(this)) {
             order.getOrderDetails().add(this);
         }

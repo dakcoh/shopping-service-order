@@ -50,12 +50,4 @@ public abstract class BaseEntity {
     public void setActive(boolean active) {
         isActive = active;
     }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 }

@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-
 @RequiredArgsConstructor
 public class OrderStatusHistoryServiceTest {
 
