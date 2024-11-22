@@ -13,7 +13,7 @@ import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(schema = "order")
+@Table(schema = "orders")
 @Getter
 @Setter
 @NoArgsConstructor
