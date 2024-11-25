@@ -4,9 +4,8 @@ package order.service;
 import jakarta.transaction.Transactional;
 import order.dto.OrderItemRequest;
 import order.dto.OrderRequest;
-import order.entity.Order;
+import order.entity.Orders;
 import order.entity.OrderDetail;
-import order.repository.OrderItemRepository;
 import order.repository.OrderRepository;
 import order.dto.OrderResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class OrderService {
      * @return 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
      */
     public OrderResponse getOrderById(Long id) {
-        Optional<Order> order = orderRepository.findById(id);
+        Optional<Orders> order = orderRepository.findById(id);
         return order.map(this::convertToOrderResponse).orElse(null);
     }
 
@@ -69,7 +68,7 @@ public class OrderService {
         }
 
         // 2. 주문 생성
-        Order order = new Order();
+        Orders order = new Orders();
         order.setOrderDate(LocalDate.now().atStartOfDay());
         order.setCustomerId(orderRequest.getCustomerId());
         order.setStatus(PENDING);
@@ -80,7 +79,7 @@ public class OrderService {
         // 3. 주문 상세 추가
         for (OrderItemRequest item : orderRequest.getItems()) {
             OrderDetail detail = new OrderDetail();
-            detail.setProduct_option_id(item.getProductOptionId());
+            detail.setProductOptionId(item.getProductOptionId());
             detail.setQuantity(item.getQuantity());
             detail.setAmount(item.getAmount());
 
@@ -94,7 +93,7 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
 
         // 4. 저장 (cascade로 OrderDetail도 저장)
-        Order saveOrder = orderRepository.save(order);
+        Orders saveOrder = orderRepository.save(order);
 
         // 5. 상태 이력 기록
         orderStatusHistoryService.create(saveOrder.getId(), saveOrder.getCustomerId(), saveOrder.getStatus());
@@ -109,11 +108,11 @@ public class OrderService {
      * @return 업데이트된 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
      */
     public OrderResponse updateOrderStatus(Long orderId, String status) {
-        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        Optional<Orders> optionalOrder = orderRepository.findById(orderId);
         if (optionalOrder.isPresent()) {
-            Order order = optionalOrder.get();
+            Orders order = optionalOrder.get();
             order.setStatus(PENDING);
-            Order updatedOrder = orderRepository.save(order);
+            Orders updatedOrder = orderRepository.save(order);
             return convertToOrderResponse(updatedOrder);
         }
         return null; // 또는 예외를 던질 수도 있습니다.
@@ -124,7 +123,7 @@ public class OrderService {
      * @param order 변환할 Order 엔티티
      * @return 변환된 OrderResponse DTO
      */
-    private OrderResponse convertToOrderResponse(Order order) {
+    private OrderResponse convertToOrderResponse(Orders order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId());
         response.setStatus(order.getStatus());

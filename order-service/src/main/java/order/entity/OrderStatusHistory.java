@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderStatusHistory {
+public class OrderStatusHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,16 +20,23 @@ public class OrderStatusHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    private Orders orders;
 
-    @Column(nullable = false, name = "order_date")
+    @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate; // 주문 일자
 
-    @Column(nullable = false, name = "customer_id")
+    @Column(name = "customer_id", nullable = false)
     private Long customerId; // 고객 ID (FK로 설정 가능)
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "status")
+    @Column(name = "status", nullable = false)
     private OrderStatus status;
 
+    // 편의 메서드 (Order와 관계 설정)
+    public void setOrder(Orders orders) {
+        this.orders = orders;
+        if (!orders.getStatusHistories().contains(this)) {
+            orders.getStatusHistories().add(this);
+        }
+    }
 }

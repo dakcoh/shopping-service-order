@@ -2,7 +2,7 @@ package order.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import order.entity.Order;
+import order.entity.Orders;
 import order.entity.OrderStatus;
 import order.entity.OrderStatusHistory;
 import order.repository.OrderRepository;
@@ -29,14 +29,16 @@ public class OrderStatusHistoryService {
     @Transactional
     public void create(Long orderId, Long customerId, OrderStatus status) {
         // Order 객체 조회
-        Order order = orderRepository.findById(orderId)
+        Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid order ID: " + orderId));
 
         OrderStatusHistory history = new OrderStatusHistory();
-        history.setOrder(order);
+        history.setOrders(order);
         history.setOrderDate(LocalDate.now().atStartOfDay());
         history.setCustomerId(customerId);
         history.setStatus(status);
+
+        order.addOrderStatusHistory(history);  // 양방향 관계 설정
 
         historyRepository.save(history);
     }
@@ -48,7 +50,7 @@ public class OrderStatusHistoryService {
      */
     @Transactional
     public List<OrderStatusHistory> searchByOrderId(Long orderId) {
-        return historyRepository.findByOrderId(orderId);
+        return historyRepository.findByOrders_Id(orderId);
     }
 
     /**

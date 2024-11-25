@@ -12,6 +12,7 @@ import java.util.List;
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderDetail, Long> {
 
-    @Query("SELECT od FROM OrderDetail od WHERE od.order.status = :status")
-    List<OrderDetail> findByOrderStatus(@Param("status") OrderStatus status);
+    // OrderDetail에서 order 상태를 기준으로 검색
+    @Query("SELECT od FROM OrderDetail od WHERE od.orders.status = :status")
+    List<OrderDetail> findByOrder_Status(@Param("status") OrderStatus status);
 }
