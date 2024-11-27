@@ -19,15 +19,6 @@
 ├── api-gateway
 │   ├── Dockerfile
 │   └── build.gradle.kts
-├── cart-service
-│   ├── Dockerfile
-│   └── build.gradle.kts
-├── customer-service
-│   ├── Dockerfile
-│   └── build.gradle.kts
-├── notification-service
-│   ├── Dockerfile
-│   └── build.gradle.kts
 ├── order-service
 │   ├── Dockerfile
 │   ├── build.gradle.kts
@@ -66,9 +57,6 @@
 ├── product-service
 │   ├── Dockerfile
 │   └── build.gradle.kts
-└── shipping-service
-    ├── Dockerfile
-    └── build.gradle.kts
 ```
 ### 주요 서비스 설명
 - **API Gateway:** 모든 요청을 중앙에서 처리하고 라우팅하는 게이트웨이 서비스입니다.
