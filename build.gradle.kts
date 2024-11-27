@@ -48,6 +48,13 @@ subprojects {
 		implementation("org.jetbrains:annotations:26.0.1") // ver.2024-10-14
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
 		testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+		// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client
+		implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.3")
+
+		// https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-loadbalancer
+		implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer:4.1.4")
+
 	}
 }
 
