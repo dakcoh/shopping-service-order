@@ -1,4 +1,5 @@
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import org.springframework.boot.loader.tools.JarModeLibrary
 
 plugins {
 	java
@@ -66,7 +67,8 @@ tasks {
 
 	named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
 		mainClass.set("order.OrderApplication")
-		mainClass.set("product.ProductApplication")
+		mainClass.set("payment.PaymentApplication")
+		mainClass.set("api-gateway.ApiGatewayApplication")
 	}
 	named<Jar>("jar") {
 		enabled = true // jar 활성화
