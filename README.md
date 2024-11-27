@@ -1,5 +1,18 @@
-## 프로젝트 개요
-이 프로젝트는 쇼핑 주문 서비스를 위한 마이크로서비스 아키텍처로 개발되었습니다. 각 서비스는 독립적으로 배포 가능하며, 전체 시스템은 다양한 비즈니스 로직을 분리하여 관리할 수 있도록 구성되었습니다.
+`shopping-service-order`는 쇼핑몰 주문 관리 기능을 담당하는 서비스로, 마이크로서비스 아키텍처(MSA)를 기반으로 설계되었습니다.
+이 문서는 프로젝트의 내용과 로컬 환경에서 빌드하고 실행하는 방법을 작성했습니다.
+
+## 목차
+- [프로젝트 개요](#프로젝트-개요)
+- [프로젝트 구조](#프로젝트-구조)
+    - [주요 서비스 설명](#주요-서비스-설명)
+- [시작하기](#시작하기)
+    - [필수 요구 사항](#필수-요구-사항)
+    - [설치 및 실행](#설치-및-실행)
+- [빌드 및 실행](#빌드-및-실행)
+- [테이블 ERD](#테이블-ERD)
+    - [고객/주소/장바구니 보관](#고객/주소/장바구니-보관)
+    - [상품/재고](#상품/재고)
+    - [주문/결제/배송](#주문/결제/배송)
 
 ## 프로젝트 구조
 ``` bash
@@ -73,8 +86,34 @@
 - **repository:** 데이터베이스와 상호작용하는 레포지토리 클래스입니다.
 - **service:** 비즈니스 로직을 처리하는 서비스 클래스입니다.
 
-## 테이블 ERD 작성
-### * 고객/주소/장바구니 보관 ERD
+## 시작하기
+
+### 필수 요구 사항
+
+이 프로젝트를 실행하려면 아래 소프트웨어가 필요합니다:
+- **JDK 17** 이상
+- **Gradle 7.0** 이상
+- **MySQL** 데이터베이스
+- **Git**
+
+### 설치 및 실행
+
+1. **Git 저장소 클론**:
+   ```bash
+   git clone https://github.com/dakcoh/shopping-service-order.git
+   cd shopping-service-order
+
+## 빌드 및 실행
+> 기본적으로 애플리케이션은 http://localhost:8081에서 실행됩니다.
+1. **프로젝트 빌드**
+   ```bash
+   ./gradlew build
+2. **애플리케이션 실행**
+   ```bash
+   ./gradlew :order-service:bootRun
+
+## 테이블 ERD
+### 고객/주소/장바구니 보관 ERD
 ```mermaid
 erDiagram
     CUSTOMER {
@@ -113,7 +152,7 @@ erDiagram
     CART ||--o{ CART_ITEM : "contains"
     ADDRESS }o--|| CUSTOMER : "belongs to"
 ```
-### * 상품/재고 ERD
+### 상품/재고 ERD
 ```mermaid
 
 erDiagram
@@ -172,7 +211,7 @@ erDiagram
     PRODUCT_OPTION ||--o{ INVENTORY : "tracked by"
 ```
 
-### * 주문/결제/배송 ERD
+### 주문/결제/배송 ERD
 ```mermaid
 erDiagram
     "ORDER" {

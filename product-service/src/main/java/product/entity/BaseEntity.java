@@ -1,5 +1,4 @@
-
-package order.entity;
+package product.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

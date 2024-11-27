@@ -2,9 +2,10 @@ package order.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import order.entity.Order;
+import order.entity.Orders;
 import order.entity.OrderStatus;
 import order.entity.OrderStatusHistory;
+import order.repository.OrderRepository;
 import order.repository.OrderStatusHistoryRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderStatusHistoryService {
 
-    private final OrderStatusHistoryRepository repository;
+    private final OrderRepository orderRepository; // 주문 정보를 조회하기 위한 OrderRepository
+    private final OrderStatusHistoryRepository historyRepository; // 주문 상태 이력을 저장하기 위한 OrderStatusHistoryRepository
+
 
     /**
      * 주문 상태 이력을 생성합니다.
@@ -25,13 +28,19 @@ public class OrderStatusHistoryService {
      */
     @Transactional
     public void create(Long orderId, Long customerId, OrderStatus status) {
+        // Order 객체 조회
+        Orders order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid order ID: " + orderId));
+
         OrderStatusHistory history = new OrderStatusHistory();
-        history.setOrderId(orderId);
+        history.setOrders(order);
         history.setOrderDate(LocalDate.now().atStartOfDay());
         history.setCustomerId(customerId);
         history.setStatus(status);
 
-        repository.save(history);
+        order.addOrderStatusHistory(history);  // 양방향 관계 설정
+
+        historyRepository.save(history);
     }
 
     /**
@@ -41,7 +50,7 @@ public class OrderStatusHistoryService {
      */
     @Transactional
     public List<OrderStatusHistory> searchByOrderId(Long orderId) {
-        return repository.findByOrderId(orderId);
+        return historyRepository.findByOrders_Id(orderId);
     }
 
     /**
@@ -52,6 +61,6 @@ public class OrderStatusHistoryService {
      */
     @Transactional
     public List<OrderStatusHistory> searchByCustomerIdAndStatus(Long customerId, String status) {
-        return repository.findByCustomerIdAndStatus(customerId, status);
+        return historyRepository.findByCustomerIdAndStatus(customerId, status);
     }
 }

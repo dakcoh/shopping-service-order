@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity
-@Table(schema = "order_detail")
+@Table(name = "order_detail")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,19 +20,22 @@ public class OrderDetail extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)  // FK
-    private Order order_id;
+    private Orders orders;
 
-    private Long product_option_id;
+    @Column(name = "product_option_id", nullable = false)
+    private Long productOptionId;
 
+    @Column(nullable = false)
     private Integer quantity;
 
+    @Column(nullable = false)
     private BigDecimal amount;
 
     // 편의 메서드 (Order와 관계 설정)
-    public void setOrder(Order order) {
-        this.order_id = order;
-        if (!order.getOrderDetails().contains(this)) {
-            order.getOrderDetails().add(this);
+    public void setOrder(Orders orders) {
+        this.orders = orders;
+        if (!orders.getOrderDetails().contains(this)) {
+            orders.getOrderDetails().add(this);
         }
     }
 }

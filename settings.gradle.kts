@@ -3,6 +3,8 @@ rootProject.name = "shopping-service-order"
 include("order-service")
 include("payment-service")
 //include("product-service")
+//include("payment-service")
+include("product-service")
 //include("shipping-service")
 //include("notification-service")
 //include("customer-service")

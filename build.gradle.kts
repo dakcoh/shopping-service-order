@@ -66,6 +66,7 @@ tasks {
 
 	named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
 		mainClass.set("order.OrderApplication")
+		mainClass.set("product.ProductApplication")
 	}
 	named<Jar>("jar") {
 		enabled = true // jar 활성화
