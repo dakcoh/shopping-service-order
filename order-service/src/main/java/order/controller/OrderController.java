@@ -1,12 +1,13 @@
 
 package order.controller;
 
-import order.dto.OrderRequest;
+import shared.dto.OrderRequest;
 import order.dto.OrderResponse;
 import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import order.entity.OrderStatus;
 
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class OrderController {
      * @return 업데이트된 주문의 상세 정보
      */
     @PutMapping("/{id}/status")
-    public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
+    public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
         OrderResponse updatedOrder = orderService.updateOrderStatus(id, status);
         return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.notFound().build();
     }
