@@ -10,6 +10,8 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    // 공통 DTO 모듈 사용
+    implementation(project(":shared-dto"))
     // 추가적으로 필요한 의존성 정의
     runtimeOnly("com.h2database:h2") // Order 서비스에서 H2 DB를 사용
 }

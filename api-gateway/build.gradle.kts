@@ -13,3 +13,9 @@ dependencies {
     // 추가적으로 필요한 의존성 정의
     runtimeOnly("com.h2database:h2") // Order 서비스에서 H2 DB를 사용
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
