@@ -4,6 +4,11 @@ plugins {
     id("java-library") // Spring Boot 플러그인이 아닌 java-library 플러그인 사용
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 repositories {
     mavenCentral() // 서브프로젝트에서도 저장소 정의
 }
