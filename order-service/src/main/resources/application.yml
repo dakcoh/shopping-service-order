@@ -18,3 +18,20 @@ spring:
         show_sql: true    # SQL 쿼리 로그 출력
     hibernate:
       ddl-auto: create # 매번 테이블을 새로 생성-삭제
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+order:
+  kafka:
+    topic:
+      payment-request: payment-request
+      payment-response: payment-response
