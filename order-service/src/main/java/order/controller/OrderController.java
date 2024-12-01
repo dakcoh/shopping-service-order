@@ -1,7 +1,7 @@
 
 package order.controller;
 
-import shared.dto.OrderRequest;
+import shared.dto.request.OrderRequest;
 import order.dto.OrderResponse;
 import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;

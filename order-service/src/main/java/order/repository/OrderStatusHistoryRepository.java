@@ -11,5 +11,5 @@ public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusH
     List<OrderStatusHistory> findByOrders_Id(Long orderId);
 
     // 특정 고객 ID와 상태로 상태 이력 조회
-    List<OrderStatusHistory> findByCustomerIdAndStatus(Long customerId, String status);
+    List<OrderStatusHistory> findByCustomerIdAndStatus(String customerId, String status);
 }

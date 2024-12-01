@@ -26,7 +26,7 @@ public class OrderStatusHistory extends BaseEntity {
     private LocalDateTime orderDate; // 주문 일자
 
     @Column(name = "customer_id", nullable = false)
-    private Long customerId; // 고객 ID (FK로 설정 가능)
+    private String customerId; // 고객 ID (FK로 설정 가능)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

@@ -1,4 +1,4 @@
-package shared.dto;
+package shared.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,10 +23,4 @@ public class OrderItemRequest {
     // 금액 (단가 * 수량)
     @NotNull("Amount is required")
     private BigDecimal amount;
-
-    public OrderItemRequest(Long productOptionId, Integer quantity, BigDecimal amount) {
-        this.productOptionId = productOptionId;
-        this.quantity = quantity;
-        this.amount = amount;
-    }
 }

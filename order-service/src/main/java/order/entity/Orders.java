@@ -27,7 +27,7 @@ public class Orders extends BaseEntity {
     private LocalDateTime orderDate;
 
     @Column(name = "customer_id", nullable = false)
-    private Long customerId;
+    private String customerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
