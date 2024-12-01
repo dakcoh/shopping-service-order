@@ -1,30 +1,52 @@
 package order.service;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import static org.mockito.Mockito.*;
+
 import order.entity.OrderStatus;
-import order.entity.OrderStatusHistory;
+import order.entity.Orders;
+import order.repository.OrderRepository;
+import order.repository.OrderStatusHistoryRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
+import java.util.Optional;
 
-@RequiredArgsConstructor
+@ExtendWith(MockitoExtension.class) // Mockito 테스트 환경 구성
 public class OrderStatusHistoryServiceTest {
 
-    private final OrderStatusHistoryService service;
+    @InjectMocks
+    private OrderStatusHistoryService service; // 테스트 대상 클래스
+
+    @Mock
+    private OrderRepository orderRepository; // Mock Repository
+
+    @Mock
+    private OrderStatusHistoryRepository historyRepository; // Mock 상태 이력 Repository
+
+    private Orders mockOrder;
+
+    @BeforeEach
+    public void setup() {
+        // Mock 주문 객체 초기화
+        mockOrder = new Orders();
+        mockOrder.setId(1L);
+        mockOrder.setCustomerId("dakcoh");
+    }
 
     @Test
-    @Transactional
-    public void testCreateAndSearch() {
-        // 1. 상태 이력 생성
-        service.create(1L, 1001L, OrderStatus.PENDING);
+    public void testCreateOrderStatusHistory_Success() {
+        // Given: Mock 동작 설정
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(mockOrder));
 
-        // 2. 주문 ID로 검색
-        List<OrderStatusHistory> histories = service.searchByOrderId(1L);
-        //assertEquals("2", histories.size());
+        // When: create 호출
+        service.create(mockOrder.getId(), mockOrder.getCustomerId(), OrderStatus.PENDING);
 
-        // 3. 고객 ID와 상태로 검색
-        List<OrderStatusHistory> confirmedHistories = service.searchByCustomerIdAndStatus(1001L, "CONFIRMED");
-        //assertEquals("1", confirmedHistories.size());
+        // Then: 저장 동작 검증
+        verify(orderRepository, times(1)).findById(mockOrder.getId());
+        verify(historyRepository, times(1)).save(any());
     }
 }

@@ -3,13 +3,17 @@ package order.service;
 import jakarta.transaction.Transactional;
 import order.producer.PaymentRequestProducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import shared.dto.OrderItemRequest;
-import shared.dto.OrderRequest;
+import shared.dto.request.OrderItemRequest;
+import shared.dto.request.OrderRequest;
 import order.dto.OrderResponse;
 import order.entity.OrderDetail;
 import order.entity.Orders;
 import order.entity.OrderStatus;
+import order.event.OrderCreatedEvent;
+import order.event.OrderStatusUpdatedEvent;
+import order.event.OrderCancelledEvent;
 import order.exception.OrderNotFoundException;
 import order.repository.OrderRepository;
 
@@ -31,14 +35,18 @@ public class OrderService {
     private final OrderRepository orderRepository; // 주문 데이터를 관리하는 Repository
     private final OrderStatusHistoryService orderStatusHistoryService; // 주문 상태 이력을 관리하는 서비스
     private final PaymentRequestProducer paymentRequestProducer; // Kafka를 통해 결제 요청을 전송하는 Producer
+    private final ApplicationEventPublisher eventPublisher; // 이벤트 발행기
+
 
     @Autowired
     public OrderService(OrderRepository orderRepository,
                         OrderStatusHistoryService orderStatusHistoryService,
-                        PaymentRequestProducer paymentRequestProducer) {
+                        PaymentRequestProducer paymentRequestProducer,
+                        ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
         this.orderStatusHistoryService = orderStatusHistoryService;
         this.paymentRequestProducer = paymentRequestProducer;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -103,12 +111,14 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
 
         Orders savedOrder = orderRepository.save(order); // 주문 저장
-
         // 3. 주문 상태 이력 기록
         orderStatusHistoryService.create(savedOrder.getId(), savedOrder.getCustomerId(), savedOrder.getStatus());
 
         // 4. Kafka를 통해 결제 요청 전송
         sendPaymentRequestToKafka(savedOrder);
+
+        // 주문 생성 이벤트 발행
+        eventPublisher.publishEvent(new OrderCreatedEvent(savedOrder.getId(), savedOrder.getCustomerId()));
 
         return convertToOrderResponse(savedOrder); // 생성된 주문 정보를 반환
     }
@@ -133,7 +143,59 @@ public class OrderService {
         // 상태 이력 기록
         orderStatusHistoryService.create(updatedOrder.getId(), updatedOrder.getCustomerId(), updatedOrder.getStatus());
 
-        return convertToOrderResponse(updatedOrder); // 업데이트된 주문 정보 반환
+        // 주문 상태 업데이트 이벤트 발행
+        eventPublisher.publishEvent(new OrderStatusUpdatedEvent(updatedOrder.getId(), status));
+
+        return convertToOrderResponse(updatedOrder);
+    }
+
+    /**
+     * 주문 상태를 'PAID'로 업데이트합니다.
+     *
+     * @param orderId 주문의 고유 ID
+     * @throws OrderNotFoundException 주문이 존재하지 않을 경우 발생
+     */
+    @Transactional
+    public void updateOrderStatusToPaid(String orderId) {
+        Orders order = orderRepository.findById(Long.valueOf(orderId))
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+
+        // 주문 상태를 PAID로 변경
+        order.setStatus(OrderStatus.PAID);
+        orderRepository.save(order);
+
+        // 주문 상태 이력 기록
+        orderStatusHistoryService.create(order.getId(), order.getCustomerId(), order.getStatus());
+
+        // 주문 상태 업데이트 이벤트 발행
+        eventPublisher.publishEvent(new OrderStatusUpdatedEvent(order.getId(), OrderStatus.PAID));
+
+        System.out.println("Order status updated to PAID for orderId: " + orderId);
+    }
+
+    /**
+     * 주문 상태를 'CANCELLED'로 업데이트하고 실패 사유를 기록합니다.
+     *
+     * @param orderId 주문의 고유 ID
+     * @param failureReason 결제 실패 사유
+     * @throws OrderNotFoundException 주문이 존재하지 않을 경우 발생
+     */
+    @Transactional
+    public void updateOrderStatusToCancelled(String orderId, String failureReason) {
+        Orders order = orderRepository.findById(Long.valueOf(orderId))
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+
+        // 주문 상태를 CANCELLED로 변경
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+
+        // 주문 상태 이력 기록
+        orderStatusHistoryService.create(order.getId(), order.getCustomerId(), order.getStatus());
+
+        // 주문 상태 업데이트 이벤트 발행
+        eventPublisher.publishEvent(new OrderCancelledEvent(order.getId(), failureReason));
+
+        System.out.println("Order status updated to CANCELLED for orderId: " + orderId + ". Reason: " + failureReason);
     }
 
     /**

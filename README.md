@@ -2,7 +2,6 @@
 이 문서는 프로젝트의 내용과 로컬 환경에서 빌드하고 실행하는 방법을 작성했습니다.
 
 ## 목차
-- [프로젝트 개요](#프로젝트-개요)
 - [프로젝트 구조](#프로젝트-구조)
     - [주요 서비스 설명](#주요-서비스-설명)
 - [시작하기](#시작하기)
@@ -15,64 +14,102 @@
     - [주문/결제/배송](#주문/결제/배송)
 
 ## 프로젝트 구조
+<details>
+  <summary>Click me</summary>
+    
 ``` bash
-├── api-gateway
-│   ├── Dockerfile
-│   └── build.gradle.kts
-├── order-service
+shopping-service-order/
+├── docker-compose.yml       # 전체 서비스 Docker 설정
+├── api-gateway/             # API Gateway 서비스
 │   ├── Dockerfile
 │   ├── build.gradle.kts
-│   └── src
-│       ├── main
-│       │   ├── java
-│       │   │   └── order
-│       │   │       ├── OrderApplication.java
-│       │   │       ├── controller
-│       │   │       │   └── OrderController.java
-│       │   │       ├── dto
-│       │   │       │   ├── OrderRequest.java
-│       │   │       │   ├── OrderItemRequest.java
-│       │   │       │   └── OrderResponse.java
-│       │   │       ├── entity
-│       │   │       │   ├── BaseEntity.java
-│       │   │       │   ├── Order.java
-│       │   │       │   ├── OrderItem.java
-│       │   │       │   ├── OrderStatus.java
-│       │   │       │   └── OrderStatusHistory.java
-│       │   │       ├── exception
-│       │   │       │   └── OrderNotFoundException.java
-│       │   │       ├── repository
-│       │   │       │   ├── OrderRepository.java
-│       │   │       │   ├── OrderItemRepository.java
-│       │   │       │   └── OrderRepository.java
-│       │   │       └── service
-│       │   │           ├── OrderStatusHistoryService.java
-│       │   │           └── OrderService.java
-│       │   └── resources
+│   └── src/
+│       ├── main/
+│       │   ├── java/
+│       │   │   └── gateway/
+│       │   │       └── ApiGatewayApplication.java
+│       │   └── resources/
 │       │       └── application.yml
-│       └── test
-├── payment-service
+│       └── test/
+├── order-service/           # 주문 관리 서비스
 │   ├── Dockerfile
-│   └── build.gradle.kts
-├── product-service
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── main/
+│       │   ├── java/
+│       │   │   └── order/
+│       │   │       ├── OrderApplication.java
+│       │   │       ├── config/
+│       │   │       │   └── RestTemplateConfig.java
+│       │   │       ├── controller/
+│       │   │       │   └── OrderController.java
+│       │   │       ├── dto/
+│       │   │       │   ├── OrderItemRequest.java
+│       │   │       │   ├── OrderRequest.java
+│       │   │       │   └── OrderResponse.java
+│       │   │       ├── entity/
+│       │   │       │   ├── Orders.java
+│       │   │       │   ├── OrderDetail.java
+│       │   │       │   └── OrderStatus.java
+│       │   │       ├── repository/
+│       │   │       │   ├── OrderRepository.java
+│       │   │       │   └── OrderItemRepository.java
+│       │   │       ├── service/
+│       │   │       │   ├── OrderService.java
+│       │   │       │   └── OrderStatusHistoryService.java
+│       │   │       └── exception/
+│       │   │           └── OrderNotFoundException.java
+│       │   └── resources/
+│       │       └── application.yml
+│       └── test/
+│           ├── java/
+│           │   └── order/
+│           │       └── OrderServiceTest.java
+│           └── resources/
+├── payment-service/         # 결제 관리 서비스
 │   ├── Dockerfile
-│   └── build.gradle.kts
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── main/
+│       │   ├── java/
+│       │   │   └── payment/
+│       │   │       ├── PaymentApplication.java
+│       │   │       ├── config/
+│       │   │       │   └── RestTemplateConfig.java
+│       │   │       ├── controller/
+│       │   │       │   └── PaymentController.java
+│       │   │       ├── dto/
+│       │   │       │   └── PaymentRequest.java
+│       │   │       ├── entity/
+│       │   │       │   ├── Payment.java
+│       │   │       │   └── PaymentStatus.java
+│       │   │       ├── repository/
+│       │   │       │   └── PaymentRepository.java
+│       │   │       └── service/
+│       │   │           └── PaymentService.java
+│       │   └── resources/
+│       │       └── application.yml
+│       └── test/
+└── shared-dto/              # 공유 DTO 모듈
+    ├── build.gradle.kts
+    └── src/
+        ├── main/
+        │   ├── java/
+        │   │   └── shared/
+        │   │       └── dto/
+        │   │           ├── OrderItemRequest.java
+        │   │           ├── OrderRequest.java
+        │   │           └── PaymentRequest.java
+        │   └── resources/
+        └── test/
 ```
+</details>
+
 ### 주요 서비스 설명
 - **API Gateway:** 모든 요청을 중앙에서 처리하고 라우팅하는 게이트웨이 서비스입니다.
-- **Cart Service:** 고객의 장바구니를 관리하는 서비스입니다.
-- **Customer Service:** 고객의 정보를 관리하는 서비스입니다.
-- **Notification Service:** 고객에게 알림을 보내기 위한 서비스입니다.
 - **Order Service:** 주문 처리와 관련된 핵심 비즈니스 로직을 포함합니다. 주문 생성, 조회, 상태 업데이트 등을 관리합니다.
 - **Payment Service:** 결제 처리를 담당하는 서비스입니다.
-- **Product Service:** 제품 정보를 관리하는 서비스입니다.
-- **Shipping Service:** 배송 정보를 관리하는 서비스입니다.
-#### order-service는 다양한 패키지로 구분되어 있으며, 각 패키지는 특정 역할을 수행합니다:
-- **controller:** HTTP 요청을 처리하고 응답을 반환합니다.
-- **dto:** 데이터 전송 객체로, 요청과 응답 데이터를 포함합니다.
-- **entity:** 데이터베이스 테이블과 매핑되는 엔터티 클래스입니다.
-- **repository:** 데이터베이스와 상호작용하는 레포지토리 클래스입니다.
-- **service:** 비즈니스 로직을 처리하는 서비스 클래스입니다.
+- **shared-dto:** 여러 서비스 간에 공유되는 데이터 전송 객체(DTO)를 포함하는 모듈입니다.
 
 ## 시작하기
 
@@ -81,7 +118,7 @@
 이 프로젝트를 실행하려면 아래 소프트웨어가 필요합니다:
 - **JDK 17** 이상
 - **Gradle 7.0** 이상
-- **MySQL** 데이터베이스
+- **H2** 데이터베이스
 - **Git**
 
 ### 설치 및 실행
