@@ -1,16 +1,15 @@
 
-package shared.dto;
+package shared.dto.request;
 
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class PaymentRequest {
     private Long orderId;
     private BigDecimal amount;
     private String paymentMethod;
-
-    public PaymentRequest(Long id, BigDecimal totalAmount, String card) {
-    }
 }

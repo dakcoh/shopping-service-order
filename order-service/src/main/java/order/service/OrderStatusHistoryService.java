@@ -27,7 +27,7 @@ public class OrderStatusHistoryService {
      * @param status 주문 상태
      */
     @Transactional
-    public void create(Long orderId, Long customerId, OrderStatus status) {
+    public void create(Long orderId, String customerId, OrderStatus status) {
         // Order 객체 조회
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid order ID: " + orderId));
@@ -60,7 +60,7 @@ public class OrderStatusHistoryService {
      * @return 주문 상태 이력 리스트
      */
     @Transactional
-    public List<OrderStatusHistory> searchByCustomerIdAndStatus(Long customerId, String status) {
+    public List<OrderStatusHistory> searchByCustomerIdAndStatus(String customerId, String status) {
         return historyRepository.findByCustomerIdAndStatus(customerId, status);
     }
 }

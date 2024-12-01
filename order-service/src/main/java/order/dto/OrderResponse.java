@@ -1,13 +1,15 @@
 package order.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import order.entity.OrderStatus;
 import org.antlr.v4.runtime.misc.NotNull;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class OrderResponse {
     public OrderResponse() {
