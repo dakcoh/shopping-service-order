@@ -104,7 +104,9 @@ shopping-service-order/
         └── test/
 ```
 </details>
-![주문_결제 drawio](https://github.com/user-attachments/assets/644f92aa-87ed-4967-8127-561e9771e3bb)
+
+![주문_결제 drawio](https://github.com/user-attachments/assets/df299d4b-15a3-408a-b8ac-21445fc8a0a3)
+
 
 ### 주요 서비스 설명
 - **API Gateway:** 모든 요청을 중앙에서 처리하고 라우팅하는 게이트웨이 서비스입니다.
