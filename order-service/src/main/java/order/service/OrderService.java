@@ -1,7 +1,7 @@
 package order.service;
 
 import jakarta.transaction.Transactional;
-import order.producer.PaymentRequestProducer;
+import payment.producer.PaymentRequestProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
