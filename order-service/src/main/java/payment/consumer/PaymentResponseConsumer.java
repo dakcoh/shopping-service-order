@@ -1,10 +1,10 @@
-package order.consumer;
+package payment.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import order.service.OrderService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import shared.dto.response.PaymentResponse;
+import shared.response.PaymentResponse;
 
 @Component
 public class PaymentResponseConsumer {

@@ -105,6 +105,9 @@ shopping-service-order/
 ```
 </details>
 
+![주문_결제 drawio](https://github.com/user-attachments/assets/df299d4b-15a3-408a-b8ac-21445fc8a0a3)
+
+
 ### 주요 서비스 설명
 - **API Gateway:** 모든 요청을 중앙에서 처리하고 라우팅하는 게이트웨이 서비스입니다.
 - **Order Service:** 주문 처리와 관련된 핵심 비즈니스 로직을 포함합니다. 주문 생성, 조회, 상태 업데이트 등을 관리합니다.
