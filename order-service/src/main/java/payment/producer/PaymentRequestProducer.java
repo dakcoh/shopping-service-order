@@ -1,4 +1,4 @@
-package order.producer;
+package payment.producer;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;

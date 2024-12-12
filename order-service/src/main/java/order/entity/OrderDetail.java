@@ -1,5 +1,6 @@
 package order.entity;
 
+import common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

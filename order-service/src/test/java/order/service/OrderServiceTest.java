@@ -14,8 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import shared.dto.request.OrderItemRequest;
-import shared.dto.request.OrderRequest;
+import shared.request.OrderItemRequest;
+import shared.request.OrderRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

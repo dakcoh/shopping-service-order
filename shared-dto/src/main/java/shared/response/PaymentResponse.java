@@ -1,4 +1,4 @@
-package shared.dto.response;
+package shared.response;
 
 import lombok.*;
 

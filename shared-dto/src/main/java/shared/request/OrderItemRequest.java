@@ -1,4 +1,4 @@
-package shared.dto.request;
+package shared.request;
 
 import lombok.Getter;
 import lombok.Setter;

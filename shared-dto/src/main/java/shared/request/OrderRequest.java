@@ -1,6 +1,5 @@
-package shared.dto.request;
+package shared.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

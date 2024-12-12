@@ -1,5 +1,5 @@
 
-package order.entity;
+package common;
 
 import jakarta.persistence.*;
 import lombok.Getter;

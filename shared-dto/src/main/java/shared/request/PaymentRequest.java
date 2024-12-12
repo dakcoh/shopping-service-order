@@ -1,5 +1,5 @@
 
-package shared.dto.request;
+package shared.request;
 
 import lombok.*;
 
