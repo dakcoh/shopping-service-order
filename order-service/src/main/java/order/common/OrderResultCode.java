@@ -1,7 +1,6 @@
 package order.common;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter

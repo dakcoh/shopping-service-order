@@ -1,6 +1,7 @@
 
 package order.controller;
 
+import order.common.OrderResultCode;
 import shared.request.OrderRequest;
 import order.dto.OrderResponse;
 import order.service.OrderService;
@@ -38,24 +39,35 @@ public class OrderController {
 
     /**
      * 주문 ID를 기반으로 특정 주문을 조회합니다.
-     * @param id 주문의 고유 ID
-     * @return 주문 상세 정보를 ResponseEntity 형태로 반환합니다.
+     * @param orderId 조회할 주문 ID
+     * @return 주문 정보를 포함한 ResponseEntity
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
-        OrderResponse order = orderService.getOrderById(id);
-        return ResponseEntity.ok(order);
+    @GetMapping("/{orderId}")
+    public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
+        try {
+            OrderResponse order = orderService.getOrderById(orderId);
+            return ResponseEntity.ok(order);
+        } catch (Exception e) {
+            return ResponseEntity.status(OrderResultCode.ORDER_NOT_FOUND.getStatus())
+                    .body(OrderResultCode.ORDER_NOT_FOUND.getMessage());
+        }
     }
 
     /**
-     * 새로운 주문을 생성합니다.
-     * @param orderRequest 주문 요청 정보 (사용자 ID와 항목 리스트 포함)
-     * @return 생성된 주문의 상세 정보를 ResponseEntity 형태로 반환합니다.
+     * 주문을 생성합니다.
+     * @param orderRequest 생성할 주문 정보
+     * @return 생성된 주문 정보와 상태 코드
      */
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
-        OrderResponse newOrder = orderService.createOrder(orderRequest);
-        return ResponseEntity.ok(newOrder);
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
+        try {
+            OrderResponse createdOrder = orderService.createOrder(orderRequest);
+            return ResponseEntity.status(OrderResultCode.ORDER_COMPLETED.getStatus())
+                    .body(createdOrder);
+        } catch (Exception e) {
+            return ResponseEntity.status(OrderResultCode.ORDER_CREATION_FAILED.getStatus())
+                    .body(OrderResultCode.ORDER_CREATION_FAILED.getMessage());
+        }
     }
 
     /**
