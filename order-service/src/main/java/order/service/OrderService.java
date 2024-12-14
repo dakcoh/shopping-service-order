@@ -1,6 +1,8 @@
 package order.service;
 
 import jakarta.transaction.Transactional;
+import order.common.OrderResultCode;
+import order.util.OrderStatusTransitionValidator;
 import payment.producer.PaymentRequestProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -16,11 +18,11 @@ import order.event.OrderStatusUpdatedEvent;
 import order.event.OrderCancelledEvent;
 import order.exception.OrderNotFoundException;
 import order.repository.OrderRepository;
+import shared.request.PaymentRequest;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static order.entity.OrderStatus.PENDING;
@@ -67,9 +69,11 @@ public class OrderService {
      * @return 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
      */
     public OrderResponse getOrderById(Long id) {
-        Optional<Orders> order = orderRepository.findById(id); // 주문 ID로 조회
-        return order.map(this::convertToOrderResponse)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + id)); // 주문이 없으면 예외 발생
+        // 주문 ID로 조회
+        Orders order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(OrderResultCode.ORDER_NOT_FOUND, id)); // 예외 발생 시 OrderResultCode 활용
+
+        return convertToOrderResponse(order);
     }
 
     /**
@@ -134,14 +138,23 @@ public class OrderService {
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus status) {
         // 주문 조회
         Orders order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(OrderResultCode.ORDER_NOT_FOUND, orderId));
+
+        // 상태 변경 유효성 검사
+        if (!OrderStatusTransitionValidator.isValidTransition(order.getStatus(), status)) {
+            throw new OrderNotFoundException(OrderResultCode.INVALID_ORDER_STATUS, orderId);
+        }
 
         // 주문 상태 업데이트
         order.setStatus(status);
-        Orders updatedOrder = orderRepository.save(order); // 업데이트된 주문 저장
+        Orders updatedOrder = orderRepository.save(order);
 
         // 상태 이력 기록
-        orderStatusHistoryService.create(updatedOrder.getId(), updatedOrder.getCustomerId(), updatedOrder.getStatus());
+        orderStatusHistoryService.create(
+                updatedOrder.getId(),
+                updatedOrder.getCustomerId(),
+                updatedOrder.getStatus()
+        );
 
         // 주문 상태 업데이트 이벤트 발행
         eventPublisher.publishEvent(new OrderStatusUpdatedEvent(updatedOrder.getId(), status));
@@ -158,7 +171,7 @@ public class OrderService {
     @Transactional
     public void updateOrderStatusToPaid(String orderId) {
         Orders order = orderRepository.findById(Long.valueOf(orderId))
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(OrderResultCode.ORDER_NOT_FOUND, Long.valueOf(orderId)));
 
         // 주문 상태를 PAID로 변경
         order.setStatus(OrderStatus.PAID);
@@ -183,7 +196,7 @@ public class OrderService {
     @Transactional
     public void updateOrderStatusToCancelled(String orderId, String failureReason) {
         Orders order = orderRepository.findById(Long.valueOf(orderId))
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with ID: " + orderId));
+                .orElseThrow(() -> new OrderNotFoundException(OrderResultCode.ORDER_NOT_FOUND, Long.valueOf(orderId)));
 
         // 주문 상태를 CANCELLED로 변경
         order.setStatus(OrderStatus.CANCELLED);
@@ -204,12 +217,16 @@ public class OrderService {
      * @param order 주문 객체
      */
     private void sendPaymentRequestToKafka(Orders order) {
-        // Kafka를 통해 결제 요청 메시지 전송
-        paymentRequestProducer.sendPaymentRequest(
-                String.valueOf(order.getId()), // 주문 ID
-                String.format("Order %d payment of %s", order.getId(), order.getTotalAmount()) // 결제 정보
+        // 결제 요청 생성
+        PaymentRequest paymentRequest = new PaymentRequest(
+                order.getId(),
+                order.getTotalAmount()
         );
+
+        // Kafka로 메시지 전송
+        paymentRequestProducer.sendPaymentRequest(paymentRequest);
     }
+
 
     /**
      * Order 엔티티를 OrderResponse DTO로 변환합니다.
