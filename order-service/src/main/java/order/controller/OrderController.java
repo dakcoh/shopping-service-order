@@ -2,6 +2,9 @@
 package order.controller;
 
 import order.common.OrderResultCode;
+import order.util.GsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.request.OrderRequest;
 import order.dto.OrderResponse;
 import order.service.OrderService;
@@ -20,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/orders")
 public class OrderController {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
     private final OrderService orderService;
 
     @Autowired
@@ -58,8 +62,10 @@ public class OrderController {
      * @param orderRequest 생성할 주문 정보
      * @return 생성된 주문 정보와 상태 코드
      */
-    @PostMapping
+    @ResponseBody
+    @PostMapping("/createOrder")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
+        log.info("IN : {}", GsonUtil.GSON.toJson(orderRequest));
         try {
             OrderResponse createdOrder = orderService.createOrder(orderRequest);
             return ResponseEntity.status(OrderResultCode.ORDER_COMPLETED.getStatus())

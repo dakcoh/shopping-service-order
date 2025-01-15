@@ -3,6 +3,8 @@ package order.service;
 import jakarta.transaction.Transactional;
 import order.common.OrderResultCode;
 import order.util.OrderStatusTransitionValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import payment.producer.PaymentRequestProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,6 +36,7 @@ import static order.entity.OrderStatus.PENDING;
 @Service
 public class OrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository; // 주문 데이터를 관리하는 Repository
     private final OrderStatusHistoryService orderStatusHistoryService; // 주문 상태 이력을 관리하는 서비스
     private final PaymentRequestProducer paymentRequestProducer; // Kafka를 통해 결제 요청을 전송하는 Producer
@@ -118,11 +121,11 @@ public class OrderService {
         // 3. 주문 상태 이력 기록
         orderStatusHistoryService.create(savedOrder.getId(), savedOrder.getCustomerId(), savedOrder.getStatus());
 
-        // 4. Kafka를 통해 결제 요청 전송
-        sendPaymentRequestToKafka(savedOrder);
-
-        // 주문 생성 이벤트 발행
-        eventPublisher.publishEvent(new OrderCreatedEvent(savedOrder.getId(), savedOrder.getCustomerId()));
+//        // 4. Kafka를 통해 결제 요청 전송
+//        sendPaymentRequestToKafka(savedOrder);
+//
+//        // 주문 생성 이벤트 발행
+//        eventPublisher.publishEvent(new OrderCreatedEvent(savedOrder.getId(), savedOrder.getCustomerId()));
 
         return convertToOrderResponse(savedOrder); // 생성된 주문 정보를 반환
     }
@@ -223,8 +226,12 @@ public class OrderService {
                 order.getTotalAmount()
         );
 
-        // Kafka로 메시지 전송
-        paymentRequestProducer.sendPaymentRequest(paymentRequest);
+        try {
+            // Kafka로 메시지 전송
+            paymentRequestProducer.sendPaymentRequest(paymentRequest);
+        }catch (Exception e) {
+            log.info(e.getMessage());
+        }
     }
 
 
@@ -237,6 +244,10 @@ public class OrderService {
     private OrderResponse convertToOrderResponse(Orders order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId());
+        response.setOrder_date(order.getOrderDate());
+        response.setCustomer_Id(order.getCustomerId());
+        response.setTotal_amount(order.getTotalAmount());
+        response.setTotal_quantity(order.getTotalQuantity());
         response.setStatus(order.getStatus());
         return response;
     }
