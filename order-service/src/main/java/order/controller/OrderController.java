@@ -1,8 +1,8 @@
 
 package order.controller;
 
-import order.common.OrderResultCode;
-import order.util.GsonUtil;
+import common.OrderResultCode;
+import util.GsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.request.OrderRequest;
@@ -71,6 +71,7 @@ public class OrderController {
             return ResponseEntity.status(OrderResultCode.ORDER_COMPLETED.getStatus())
                     .body(createdOrder);
         } catch (Exception e) {
+            log.info("ERROR : {}", e.getMessage());
             return ResponseEntity.status(OrderResultCode.ORDER_CREATION_FAILED.getStatus())
                     .body(OrderResultCode.ORDER_CREATION_FAILED.getMessage());
         }

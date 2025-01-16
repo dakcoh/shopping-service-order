@@ -10,11 +10,10 @@ import java.time.LocalDateTime;
 /**
  * 모든 테이블에 대한 공통 필드를 포함하는 상속 Entity
  */
-@MappedSuperclass
 @Getter
 @Setter
+@MappedSuperclass
 public abstract class BaseEntity {
-
     /**
      * 사용 구분을 반영
      */
