@@ -1,4 +1,4 @@
-package order.util;
+package util;
 
 import order.entity.OrderStatus;
 

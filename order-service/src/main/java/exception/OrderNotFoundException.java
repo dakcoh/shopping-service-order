@@ -1,7 +1,7 @@
-package order.exception;
+package exception;
 
+import common.OrderResultCode;
 import lombok.Getter;
-import order.common.OrderResultCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

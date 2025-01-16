@@ -1,8 +1,8 @@
 package order.service;
 
 import jakarta.transaction.Transactional;
-import order.common.OrderResultCode;
-import order.util.OrderStatusTransitionValidator;
+import common.OrderResultCode;
+import util.OrderStatusTransitionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import payment.producer.PaymentRequestProducer;
@@ -15,11 +15,12 @@ import order.dto.OrderResponse;
 import order.entity.OrderDetail;
 import order.entity.Orders;
 import order.entity.OrderStatus;
-import order.event.OrderCreatedEvent;
 import order.event.OrderStatusUpdatedEvent;
 import order.event.OrderCancelledEvent;
-import order.exception.OrderNotFoundException;
+import exception.OrderNotFoundException;
 import order.repository.OrderRepository;
+import order.domain.toOrderResponse;
+
 import shared.request.PaymentRequest;
 
 import java.math.BigDecimal;
@@ -60,8 +61,12 @@ public class OrderService {
      * @return 주문 목록을 OrderResponse 형태로 반환합니다.
      */
     public List<OrderResponse> getAllOrders() {
+        // toOrderResponse 객체 생성
+        toOrderResponse converter = new toOrderResponse();
+
+        // 변환 로직 사용
         return orderRepository.findAll().stream()
-                .map(this::convertToOrderResponse) // 각 주문을 DTO로 변환
+                .map(converter::toDto) // 각 주문을 DTO로 변환
                 .collect(Collectors.toList());
     }
 
@@ -76,7 +81,7 @@ public class OrderService {
         Orders order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(OrderResultCode.ORDER_NOT_FOUND, id)); // 예외 발생 시 OrderResultCode 활용
 
-        return convertToOrderResponse(order);
+        return toOrderResponse.builder().build().toDto(order);
     }
 
     /**
@@ -127,14 +132,14 @@ public class OrderService {
 //        // 주문 생성 이벤트 발행
 //        eventPublisher.publishEvent(new OrderCreatedEvent(savedOrder.getId(), savedOrder.getCustomerId()));
 
-        return convertToOrderResponse(savedOrder); // 생성된 주문 정보를 반환
+        return toOrderResponse.builder().build().toDto(savedOrder); // 생성된 주문 정보를 반환
     }
 
     /**
      * 주문 상태를 업데이트하고 상태 이력을 기록합니다.
      *
      * @param orderId 주문의 고유 ID
-     * @param status 변경할 주문 상태
+     * @param status  변경할 주문 상태
      * @return 업데이트된 주문의 상세 정보를 OrderResponse 형태로 반환합니다.
      */
     @Transactional
@@ -162,7 +167,7 @@ public class OrderService {
         // 주문 상태 업데이트 이벤트 발행
         eventPublisher.publishEvent(new OrderStatusUpdatedEvent(updatedOrder.getId(), status));
 
-        return convertToOrderResponse(updatedOrder);
+        return toOrderResponse.builder().build().toDto(updatedOrder);
     }
 
     /**
@@ -234,21 +239,4 @@ public class OrderService {
         }
     }
 
-
-    /**
-     * Order 엔티티를 OrderResponse DTO로 변환합니다.
-     *
-     * @param order 변환할 Order 엔티티
-     * @return 변환된 OrderResponse DTO
-     */
-    private OrderResponse convertToOrderResponse(Orders order) {
-        OrderResponse response = new OrderResponse();
-        response.setId(order.getId());
-        response.setOrder_date(order.getOrderDate());
-        response.setCustomer_Id(order.getCustomerId());
-        response.setTotal_amount(order.getTotalAmount());
-        response.setTotal_quantity(order.getTotalQuantity());
-        response.setStatus(order.getStatus());
-        return response;
-    }
 }
