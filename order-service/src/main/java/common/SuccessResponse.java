@@ -7,10 +7,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@JsonPropertyOrder({"code", "message"})
-public class ErrorResponse {
+@JsonPropertyOrder({"code", "message", "data"})
+public class SuccessResponse<T> {
     @JsonProperty("code")
     private final String code;
     @JsonProperty("message")
     private final String message;
+    @JsonProperty("data")
+    private final T data; // 성공 데이터 (예: OrderResponse)
 }

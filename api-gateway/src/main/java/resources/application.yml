@@ -41,16 +41,6 @@ spring:
         enabled: true
         lower-case-service-id: true
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-  instance:
-    prefer-ip-address: false
-    health-check-url-path: /actuator/health
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
-
 jwt:
   secret_key: ${JWT_SECRET:this-is-a-default-secret-key}
   expiration: 86400000 # 1일 (밀리초)

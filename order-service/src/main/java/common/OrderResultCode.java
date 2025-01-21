@@ -1,9 +1,11 @@
 package common;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@AllArgsConstructor
 public enum OrderResultCode {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "O0001", "해당 주문을 찾을 수 없습니다."),
     ORDER_ALREADY_CANCELLED(HttpStatus.BAD_REQUEST, "O0002", "이미 취소된 주문입니다."),
@@ -16,10 +18,4 @@ public enum OrderResultCode {
     private final HttpStatus status;
     private final String code;
     private final String message;
-
-    OrderResultCode(HttpStatus status, String code, String message) {
-        this.status = status;
-        this.code = code;
-        this.message = message;
-    }
 }
