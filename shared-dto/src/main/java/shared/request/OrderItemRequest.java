@@ -1,8 +1,6 @@
 package shared.request;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -10,6 +8,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderItemRequest {
 
     // 상품 옵션 ID

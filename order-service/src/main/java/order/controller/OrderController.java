@@ -1,6 +1,7 @@
 
 package order.controller;
 
+import common.StatusResponseUtil;
 import common.OrderResultCode;
 import util.GsonUtil;
 import org.slf4j.Logger;
@@ -68,14 +69,20 @@ public class OrderController {
         log.info("IN : {}", GsonUtil.GSON.toJson(orderRequest));
         try {
             OrderResponse createdOrder = orderService.createOrder(orderRequest);
-            return ResponseEntity.status(OrderResultCode.ORDER_COMPLETED.getStatus())
-                    .body(createdOrder);
+            // 성공 응답 처리
+            return StatusResponseUtil.toSuccessResponse(OrderResultCode.ORDER_COMPLETED, createdOrder);
+        } catch (IllegalArgumentException e) {
+            // 잘못된 입력 처리
+            log.error("ERROR : {}", e.getMessage());
+            return StatusResponseUtil.toErrorResponse(OrderResultCode.INVALID_ORDER_STATUS);
         } catch (Exception e) {
-            log.info("ERROR : {}", e.getMessage());
-            return ResponseEntity.status(OrderResultCode.ORDER_CREATION_FAILED.getStatus())
-                    .body(OrderResultCode.ORDER_CREATION_FAILED.getMessage());
+            // 기타 예외 처리
+            log.error("ERROR : {}", e.getMessage());
+            return StatusResponseUtil.toErrorResponse(OrderResultCode.ORDER_CREATION_FAILED);
         }
     }
+
+
 
     /**
      * 주문 상태를 업데이트합니다.
