@@ -13,7 +13,9 @@ public enum OrderResultCode {
     ORDER_CREATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "O0004", "주문 생성에 실패했습니다."),
     ORDER_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "O0005", "주문 업데이트에 실패했습니다."),
     ORDER_CANCELLED(HttpStatus.OK, "O0006", "주문이 성공적으로 취소되었습니다."),
-    ORDER_COMPLETED(HttpStatus.OK, "O0007", "주문이 성공적으로 완료되었습니다.");
+    ORDER_COMPLETED(HttpStatus.OK, "O0007", "주문이 성공적으로 완료되었습니다."),
+    ORDER_SEARCH_COMPLETED(HttpStatus.OK, "O0008", "조회가 완료되었습니다."),
+    ORDER_UPDATE_COMPLETED(HttpStatus.OK, "O0009", "주문 업데이트에 성공했습니다.");
 
     private final HttpStatus status;
     private final String code;

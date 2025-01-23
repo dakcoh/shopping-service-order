@@ -3,16 +3,16 @@ package order.controller;
 
 import common.StatusResponseUtil;
 import common.OrderResultCode;
+import order.dto.OrderRequest;
+import order.entity.OrderStatus;
 import util.GsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shared.request.OrderRequest;
 import order.dto.OrderResponse;
 import order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import order.entity.OrderStatus;
 
 import java.util.List;
 
@@ -36,10 +36,12 @@ public class OrderController {
      * 모든 주문을 조회합니다.
      * @return 주문 목록을 ResponseEntity 형태로 반환합니다.
      */
-    @GetMapping
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+    @GetMapping("/search")
+    public ResponseEntity<?> getAllOrders() {
         List<OrderResponse> orders = orderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+        //return ResponseEntity.ok(orders);
+        // 성공 응답 처리
+        return StatusResponseUtil.toSuccessResponse(OrderResultCode.ORDER_SEARCH_COMPLETED, orders);
     }
 
     /**
@@ -49,12 +51,14 @@ public class OrderController {
      */
     @GetMapping("/{orderId}")
     public ResponseEntity<?> getOrderById(@PathVariable Long orderId) {
+        log.info("IN : {}", GsonUtil.GSON.toJson(orderId));
         try {
             OrderResponse order = orderService.getOrderById(orderId);
-            return ResponseEntity.ok(order);
+            // 성공 응답 처리
+            return StatusResponseUtil.toSuccessResponse(OrderResultCode.ORDER_COMPLETED, order);
         } catch (Exception e) {
-            return ResponseEntity.status(OrderResultCode.ORDER_NOT_FOUND.getStatus())
-                    .body(OrderResultCode.ORDER_NOT_FOUND.getMessage());
+            log.error("ERROR : {}", e.getMessage());
+            return StatusResponseUtil.toErrorResponse(OrderResultCode.ORDER_NOT_FOUND);
         }
     }
 
@@ -82,8 +86,6 @@ public class OrderController {
         }
     }
 
-
-
     /**
      * 주문 상태를 업데이트합니다.
      * @param id 주문의 고유 ID
@@ -91,8 +93,15 @@ public class OrderController {
      * @return 업데이트된 주문의 상세 정보
      */
     @PutMapping("/{id}/status")
-    public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
-        OrderResponse updatedOrder = orderService.updateOrderStatus(id, status);
-        return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.notFound().build();
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus status) {
+        try {
+            OrderResponse updatedOrder = orderService.updateOrderStatus(id, status);
+            // 성공 응답 처리
+            return StatusResponseUtil.toSuccessResponse(OrderResultCode.ORDER_UPDATE_COMPLETED, updatedOrder);
+        } catch (Exception e) {
+            // 기타 예외 처리
+            log.error("ERROR : {}", e.getMessage());
+            return StatusResponseUtil.toErrorResponse(OrderResultCode.ORDER_UPDATE_FAILED);
+        }
     }
 }
