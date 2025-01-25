@@ -17,7 +17,10 @@ spring:
         format_sql: true  # SQL 쿼리 포맷 설정
         show_sql: true    # SQL 쿼리 로그 출력
     hibernate:
-      ddl-auto: create # 매번 테이블을 새로 생성-삭제
+    #ddl-auto: create # 매번 테이블을 새로 생성-삭제
+    ddl-auto: update # 기존 테이블 유지
+  test:
+    enabled: true
 
   kafka:
     bootstrap-servers: localhost:9092

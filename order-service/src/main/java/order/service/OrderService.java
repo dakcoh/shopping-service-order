@@ -2,6 +2,8 @@ package order.service;
 
 import jakarta.transaction.Transactional;
 import common.OrderResultCode;
+import order.dto.OrderItemRequest;
+import order.dto.OrderRequest;
 import util.OrderStatusTransitionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +11,6 @@ import payment.producer.PaymentRequestProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import shared.request.OrderItemRequest;
-import shared.request.OrderRequest;
 import order.dto.OrderResponse;
 import order.entity.OrderDetail;
 import order.entity.Orders;
